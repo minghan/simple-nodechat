@@ -74,6 +74,13 @@ var PP = {
 
 var users = [];
 
+function broadcast(fullmsg, currentuser) {
+    users.forEach(function(someuser) {
+        if (someuser == currentuser || someuser.state != "ok")
+            return;
+        someuser.socket.write(fullmsg);
+    });  
+}
 
 var s = net.Server(function(socket) {
 
@@ -100,21 +107,19 @@ var s = net.Server(function(socket) {
             var username = data.trim();
             user.identify(username);
             socket.write("==> Congratulations! You are now logined!\n");
+            broadcast("^_^ `" + user.username + "` has just logined\n", user);
             user.state = "ok";
             return;
         }
 
         // the `ok` state
         
-        users.forEach(function(someuser) {
-            if (someuser == user) return;
-
-            someuser.socket.write(PP.msg(user.username, data));
-        });
+        broadcast(PP.msg(user.username, data), user)
 
     });
 
     socket.on('end', function() {
+        broadcast("^_^ `" + user.username + "` has left the conversation\n", user);
         var i = users.indexOf(user);
         users.splice(i, 1);
     });
