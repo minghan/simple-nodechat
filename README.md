@@ -9,4 +9,5 @@ Notes:
 
 * Just for fun
 * Not designed to scale
+* Possibly buggy
 
